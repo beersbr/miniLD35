@@ -33,6 +33,167 @@ Images["background"].src = "img/background.png";
 Images["bullet"] = new Image();
 Images["bullet"].src = "img/bullet.png";
 
+Player = {}
+
+Player.bullet_properties = {};
+Player.gun_type = "twin_triple";
+
+Player.gun_types = {
+	single: function(args){
+
+		width = args.w;
+		height = args.h;
+		hypotenuse = args.hyp;
+		power = args.pow;
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2,
+							ax: (width/hypotenuse)*power,
+							ay: -((height)/hypotenuse)*power
+						}));
+	},
+
+	double: function(args){
+		width = args.w;
+		height = args.h;
+		hypotenuse = args.hyp;
+		power = args.pow;
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2,
+							ax: (width/hypotenuse)*power,
+							ay: -((height-100)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2,
+							ax: (width/hypotenuse)*power,
+							ay: -((height+100)/hypotenuse)*power
+						}));
+	},
+
+	triple: function(args){
+		width = args.w;
+		height = args.h;
+		hypotenuse = args.hyp;
+		power = args.pow;
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2,
+							ax: (width/hypotenuse)*power,
+							ay: -((height-100)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2,
+							ax: (width/hypotenuse)*power,
+							ay: -((height)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2,
+							ax: (width/hypotenuse)*power,
+							ay: -((height+100)/hypotenuse)*power
+						}));
+	},
+
+	twin_single: function(args){
+		width = args.w;
+		height = args.h;
+		hypotenuse = args.hyp;
+		power = args.pow;
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2+10,
+							ax: (width/hypotenuse)*power,
+							ay: -((height)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2-10,
+							ax: (width/hypotenuse)*power,
+							ay: -((height)/hypotenuse)*power
+						}));
+	},
+
+	twin_double: function(args){
+		width = args.w;
+		height = args.h;
+		hypotenuse = args.hyp;
+		power = args.pow;
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2+30,
+							ax: (width/hypotenuse)*power,
+							ay: -((height-100)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2+10,
+							ax: (width/hypotenuse)*power,
+							ay: -((height-100)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2-10,
+							ax: (width/hypotenuse)*power,
+							ay: -((height+100)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2-30,
+							ax: (width/hypotenuse)*power,
+							ay: -((height+100)/hypotenuse)*power
+						}));
+	},
+
+	twin_triple: function(args){
+		width = args.w;
+		height = args.h;
+		hypotenuse = args.hyp;
+		power = args.pow;
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2+60,
+							ax: (width/hypotenuse)*power,
+							ay: -((height-100)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2+30,
+							ax: (width/hypotenuse)*power,
+							ay: -((height-100)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2+10,
+							ax: (width/hypotenuse)*power,
+							ay: -((height)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2-10,
+							ax: (width/hypotenuse)*power,
+							ay: -((height)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2-30,
+							ax: (width/hypotenuse)*power,
+							ay: -((height+100)/hypotenuse)*power
+						}));
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT/2-60,
+							ax: (width/hypotenuse)*power,
+							ay: -((height+100)/hypotenuse)*power
+						}));
+	}
+};
+
+Player.shoot = function(args){
+	this.gun_types[this.gun_type](args);
+}
 
 function Ball(args){
 	if(args == undefined) args = {};
@@ -56,11 +217,12 @@ function Ball(args){
 
 		// rc.save();
 		// rc.translate(this.x, this.y);
-		rc.drawImage(Images.bullet, 0-5, 0-5);
+		// rc.drawImage(Images.bullet, 0-5, 0-5);
 		// rc.rotate(Math.asin(this.ay));
 		
 		rc.drawImage(Images.bullet, this.x-5, this.y-5);
 		// rc.restore();
+
 	}
 
 	this.update = function(args){
@@ -69,7 +231,7 @@ function Ball(args){
 		this.y += this.ay;
 		this.x += this.ax;
 
-		if(this.y > WINDOW_MAX_HEIGHT) return false;
+		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
 		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
 
 		return true;
@@ -118,11 +280,19 @@ function RenderFrame(){
 		var hypotenuse = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
 		var power = hypotenuse/(WINDOW_MAX_WIDTH/4.5);
 
-		balls.push(new Ball({x: 0,
-							y: WINDOW_MAX_HEIGHT/2,
-							ax: (width/hypotenuse)*power,
-							ay: -(height/hypotenuse)*power
-						}));
+		Player.shoot({w: width, h: height, hyp: hypotenuse, pow: power});
+
+		// balls.push(new Ball({x: 0,
+		// 					y: WINDOW_MAX_HEIGHT/2,
+		// 					ax: (width/hypotenuse)*power,
+		// 					ay: -((height+80)/hypotenuse)*power
+		// 				}));
+
+		// balls.push(new Ball({x: 0,
+		// 					y: WINDOW_MAX_HEIGHT/2,
+		// 					ax: (width/hypotenuse)*power,
+		// 					ay: -((height-80)/hypotenuse)*power
+		// 				}));
 	}
 
 	for(i = 0; i < balls.length; i++){
