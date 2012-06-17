@@ -24,7 +24,9 @@ Player.accuracy = function(){
 }
 
 Player.max_wave_enemies = 10;
-Player.enemy_spawn_rate = 0.01; // 1% to start off
+Player.enemy_spawn_rate = 0.05; // 1% to start off
+Player.enemy_spawn_time = 120; // min frame between spawns
+Player.enemy_last_spawn_time = 120;
 
 Player.bullet_properties = {};
 Player.gun_type = "single";

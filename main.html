@@ -144,6 +144,7 @@ function RenderFrame(){
 	context.drawImage(Images.background, 0, 0);
 
 	Player.bullet_fire_lastshot += 1;
+	Player.enemy_last_spawn_time += 1;
 
 	var click = input.clicked();
 	if(click != undefined){
@@ -168,13 +169,19 @@ function RenderFrame(){
 	}
 
 	// update the enemies
-	if(Math.random() < 0.5/100){
-		var ypos = Math.random()*WINDOW_MAX_HEIGHT;
+	if(Math.random() < Player.enemy_spawn_rate){
 
-		enemies.push(new Enemy({x: WINDOW_MAX_WIDTH,
+		if(Player.enemy_last_spawn_time > Player.enemy_spawn_time){
+			var ypos = random(40, WINDOW_MAX_HEIGHT-30);
+
+			enemies.push(new Enemy({x: WINDOW_MAX_WIDTH,
 								y: ypos,
 								ax: -0.2
 						}));
+
+			Player.enemy_last_spawn_time = 0;
+		}
+		
 	}
 
 	for(var i = 0; i < enemies.length; i++){
