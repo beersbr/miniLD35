@@ -1,0 +1,22 @@
+Images = {};
+
+Images["background"] = new Image();
+Images["background"].src = "img/background.png";
+Images["bullet"] = new Image();
+Images["bullet"].src = "img/bullet.png";
+Images["e1"] = new Image();
+Images["e1"].src = "img/enemy1.png";
+Images["e2"] = new Image();
+Images["e2"].src = "img/enemy2.png";
+Images["item_single"] = new Image();
+Images["item_single"].src = "img/item_single.png";
+Images["item_double"] = new Image();
+Images["item_double"].src = "img/item_double.png";
+Images["item_triple"] = new Image();
+Images["item_triple"].src = "img/item_triple.png";
+Images["item_twin_single"] = new Image();
+Images["item_twin_single"].src = "img/item_twin_single.png";
+Images["item_twin_double"] = new Image();
+Images["item_twin_double"].src = "img/item_twin_double.png";
+Images["item_twin_triple"] = new Image();
+Images["item_twin_triple"].src = "img/item_twin_triple.png";

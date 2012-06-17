@@ -1,6 +1,6 @@
 EnemyConfig = {}
 
-EnemyConfig.enemy_types = ["normal", "speed", "cirle", "double", "spawner", "diagnal", "jumper"];
+EnemyConfig.enemy_types = ["normal", "speed", "circle", "double", "spawner", "diagnal", "jumper"];
 
 EnemyConfig.callback = function(obj){
 	switch(obj.type){
@@ -9,7 +9,7 @@ EnemyConfig.callback = function(obj){
 			break;
 
 		case "speed": 
-			obj.x += obj.ax * 4;
+			obj.x += obj.ax * 4.5;
 			break;
 
 		case "circle": 
