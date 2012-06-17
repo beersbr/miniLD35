@@ -35,6 +35,8 @@ you can change your gun type and power on a wave per wave basis. You get points 
 * Create enemy types
 * Create menu system for starting and stopping games
 * Fix enemy spawn spaces and timings.
+* Create images for enemies.
+* Create collision animation.
 
 #### Done ####
 
