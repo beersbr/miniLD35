@@ -9,6 +9,7 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script type="text/javascript" src="js/InputHandler.js"></script>
 <script type="text/javascript" src="js/utility.js"></script>
+<script type="text/javascript" src="js/enemy.js"></script>
 <script type="text/javascript" src="js/player.js"></script>
 
 <script type="text/javascript">
@@ -182,6 +183,8 @@ function Item(args){
 function Enemy(args){
 	if(args == undefined) args = {};
 
+	var enemy_types = ["normal", "speed", "cirle", "double", "spawner", "diagnal", "jumpera"];
+
 	this.x = args.x || 0;
 	this.y = args.y || 0;
 	this.w = args.w || 10;
@@ -190,6 +193,8 @@ function Enemy(args){
 	this.mass = 1.0;
 	this.health = 1 || args.health;
 	this.point_value = args.ptv || 10;
+
+	this.type = enemy_types[parseInt(random(0, enemy_types.length))];
 
 	this.ax = args.ax || 0.0;
 	this.ay = args.ay || 0.0;
@@ -213,7 +218,7 @@ function Enemy(args){
 			return false;
 		}
 
-		this.x += this.ax;
+		EnemyConfig.callback(this);
 
 		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
 		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
