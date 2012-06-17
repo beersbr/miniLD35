@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mini LD 35 :: Ship Defence</title>
+</head>
+
+<link rel="stylesheet" type="text/css" href="css/main.css">
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="js/InputHandler.js"></script>
+<script type="text/javascript" src="js/utility.js"></script>
+<script type="text/javascript" src="js/player.js"></script>
+
+<script type="text/javascript">
+
+WINDOW_MAX_WIDTH = 800;
+WINDOW_MAX_HEIGHT = 600;
+
+balls = [];
+enemies = [];
+
+Images = {};
+
+Images["background"] = new Image();
+Images["background"].src = "img/background.png";
+Images["bullet"] = new Image();
+Images["bullet"].src = "img/bullet.png";
+Images["e1"] = new Image();
+Images["e1"].src = "img/enemy1.png";
+
+function Ball(args){
+	if(args == undefined) args = {};
+
+	this.x = args.x || 0;
+	this.y = args.y || 0;
+	this.w = args.w || 10;
+	this.h = args.h || 10;
+
+	this.mass = 1.0;
+	this.damage = 1.0 || args.damage;
+
+	this.ax = args.ax || 0.0;
+	this.ay = args.ay || 0.0;
+	this.rotation = 0.0;
+
+	this.draw = function(rc){
+		rc.drawImage(Images.bullet, this.x-5, this.y-5);
+	}
+
+	this.update = function(args){
+		if(args == undefined) args = {};
+
+		var en_len = enemies.length;
+		if(en_len > 0){
+			var thisbox = {x: this.x, y: this.y, w: this.w, h: this.h};
+
+			for(var i = 0; i < en_len; i++){
+				var enemy = enemies[i];
+				var enbox = {x: enemy.x, y: enemy.y, w: enemy.w, h: enemy.h};
+
+				if(intersection(enbox, thisbox)){
+					enemy.health -= this.damage;
+					Player.total_hits += 1;
+					return false;
+				}
+			}
+		}
+
+		this.y += this.ay;
+		this.x += this.ax;		
+
+		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
+		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
+
+		return true;
+	}
+}
+
+function Item(args){
+	if(args == undefined) args = {};
+
+	var value_types = ["single", "double", "triple", "twin_single", "twin_double", "twin_triple"]
+
+	this.x = args.x || 0;
+	this.y = args.y || 0;
+	this.w = args.w || 10;
+	this.h = args.h || 10;
+
+	this.mass = 1.0;
+
+	this.value = value_types[random(0, value_types.length)];
+
+	this.ax = args.ax || 0.0;
+	this.ay = args.ay || 0.0;
+	this.rotation = 0.0;
+}
+
+function Enemy(args){
+	if(args == undefined) args = {};
+
+	this.x = args.x || 0;
+	this.y = args.y || 0;
+	this.w = args.w || 10;
+	this.h = args.h || 10;
+
+	this.mass = 1.0;
+	this.health = 1 || args.health;
+	this.point_value = args.ptv || 10;
+
+	this.ax = args.ax || 0.0;
+	this.ay = args.ay || 0.0;
+	this.rotation = 0.0;
+
+	this.draw = function(rc){
+		rc.drawImage(Images.e1, this.x - this.w/2, this.y - this.h/2);
+
+		// rc.save();
+		// rc.fillStyle = "rgb(255, 0, 255)";
+		// rc.fillRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
+		// rc.restore();
+	}
+
+	this.update = function(args){
+
+		if(this.health == 0){
+			Player.score += this.point_value;
+			return false;
+		}
+
+		this.x += this.ax;
+
+		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
+		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
+
+		return true;
+	}
+}
+
+function RenderHUD(rc){
+
+	rc.save();
+	rc.fillStyle = "rgb(255, 255, 255)";
+	rc.font = "12pt sans-serif";
+	rc.fillText("Health: "+Player.shields, 5, 16);
+	rc.fillText("Accuracy: "+Player.accuracy()+"%", 100, 16);
+	rc.fillText("Bullets: "+(Player.bullet_count_max-balls.length)+"/"+Player.bullet_count_max, 230, 16);
+	rc.fillText("Score: "+Player.score, 330 , 16)
+	rc.restore();
+}
+
+function RenderFrame(){
+	//context.clearRect(0, 0, WINDOW_MAX_WIDTH, WINDOW_MAX_HEIGHT);
+	context.drawImage(Images.background, 0, 0);
+
+	Player.bullet_fire_lastshot += 1;
+	Player.enemy_last_spawn_time += 1;
+
+	var click = input.clicked();
+	if(click != undefined){
+		var width = 0 + click.x;
+		var height = WINDOW_MAX_HEIGHT/2 - click.y;
+		var hypotenuse = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+		var power = 3;
+
+		if(Player.bullet_fire_lastshot > Player.bullet_fire_speed && balls.length < Player.bullet_count_max){
+			Player.shoot({w: width, h: height, hyp: hypotenuse, pow: power});
+			Player.bullet_fire_lastshot = 0;
+		}
+	}
+
+	// draw bullets
+	for(var i = 0; i < balls.length; i++){
+		if(!balls[i].update()){
+			balls.splice(i, 1);
+			continue;
+		}
+		balls[i].draw(context);
+	}
+
+	// update the enemies
+	if(Math.random() < Player.enemy_spawn_rate){
+
+		if(Player.enemy_last_spawn_time > Player.enemy_spawn_time){
+			var ypos = random(40, WINDOW_MAX_HEIGHT-30);
+
+			enemies.push(new Enemy({x: WINDOW_MAX_WIDTH,
+								y: ypos,
+								ax: -0.2
+						}));
+
+			Player.enemy_last_spawn_time = 0;
+		}
+		
+	}
+
+	for(var i = 0; i < enemies.length; i++){
+		if(!enemies[i].update()){
+			enemies.splice(i, 1);
+			continue;
+		}
+		enemies[i].draw(context);
+	}
+
+	RenderHUD(context);
+
+	requestAnimFrame(function(){
+		RenderFrame();
+	});
+}
+
+window.onload = function(){
+	canvas = document.getElementById("game-canvas");
+	context = canvas.getContext("2d");
+
+	var gc = document.getElementById("game-canvas");
+	input = new InputHandler(gc);
+
+	RenderFrame();
+}
+
+</script>
+
+<body>
+	<canvas id='game-canvas' width='800px' height='600px'></canvas>
+</body>
+</html>
