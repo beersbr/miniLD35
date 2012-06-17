@@ -25,6 +25,9 @@ window.requestAnimFrame = (function(callback){
 WINDOW_MAX_WIDTH = 800;
 WINDOW_MAX_HEIGHT = 600;
 
+balls = [];
+enemies = [];
+
 Images = {};
 
 Images["background"] = new Image();
@@ -36,7 +39,7 @@ Images["bullet"].src = "img/bullet.png";
 Player = {}
 
 Player.bullet_properties = {};
-Player.gun_type = "twin_triple";
+Player.gun_type = "single";
 
 Player.gun_types = {
 	single: function(args){
@@ -195,6 +198,12 @@ Player.shoot = function(args){
 	this.gun_types[this.gun_type](args);
 }
 
+// accepts two object
+// object{x, y, w, h}
+function intersection(a, b){
+	return (Math.abs(a.x - b.x) * 2 < (a.w + b.w)) && (Math.abs(a.y - b.y) * 2 < (a.h + b.h));
+}
+
 function Ball(args){
 	if(args == undefined) args = {};
 
@@ -204,32 +213,36 @@ function Ball(args){
 	this.h = args.h || 10;
 
 	this.mass = 1.0;
+	this.damage = 1.0 || args.damage;
 
 	this.ax = args.ax || 0.0;
 	this.ay = args.ay || 0.0;
 	this.rotation = 0.0;
 
 	this.draw = function(rc){
-		// rc.save();
-		// rc.fillStyle = "rgb(255, 255, 255)";
-		// rc.fillRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
-		// rc.restore();
-
-		// rc.save();
-		// rc.translate(this.x, this.y);
-		// rc.drawImage(Images.bullet, 0-5, 0-5);
-		// rc.rotate(Math.asin(this.ay));
-		
 		rc.drawImage(Images.bullet, this.x-5, this.y-5);
-		// rc.restore();
-
 	}
 
 	this.update = function(args){
 		if(args == undefined) args = {};
 
+		var en_len = enemies.length;
+		if(en_len > 0){
+			var thisbox = {x: this.x, y: this.y, w: this.w, h: this.h};
+
+			for(var i = 0; i < en_len; i++){
+				var enemy = enemies[i];
+				var enbox = {x: enemy.x, y: enemy.y, w: enemy.w, h: enemy.h};
+
+				if(intersection(enbox, thisbox)){
+					enemy.health -= this.damage;
+					return false;
+				}
+			}
+		}
+
 		this.y += this.ay;
-		this.x += this.ax;
+		this.x += this.ax;		
 
 		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
 		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
@@ -247,6 +260,7 @@ function Enemy(args){
 	this.h = args.h || 10;
 
 	this.mass = 1.0;
+	this.health = 1 || args.health;
 
 	this.ax = args.ax || 0.0;
 	this.ay = args.ay || 0.0;
@@ -260,6 +274,9 @@ function Enemy(args){
 	}
 
 	this.update = function(args){
+
+		if(this.health == 0) return false;
+
 		this.x += this.ax;
 
 		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
@@ -281,21 +298,9 @@ function RenderFrame(){
 		var power = hypotenuse/(WINDOW_MAX_WIDTH/4.5);
 
 		Player.shoot({w: width, h: height, hyp: hypotenuse, pow: power});
-
-		// balls.push(new Ball({x: 0,
-		// 					y: WINDOW_MAX_HEIGHT/2,
-		// 					ax: (width/hypotenuse)*power,
-		// 					ay: -((height+80)/hypotenuse)*power
-		// 				}));
-
-		// balls.push(new Ball({x: 0,
-		// 					y: WINDOW_MAX_HEIGHT/2,
-		// 					ax: (width/hypotenuse)*power,
-		// 					ay: -((height-80)/hypotenuse)*power
-		// 				}));
 	}
 
-	for(i = 0; i < balls.length; i++){
+	for(var i = 0; i < balls.length; i++){
 		if(!balls[i].update()){
 			balls.splice(i, 1);
 			continue;
@@ -313,7 +318,7 @@ function RenderFrame(){
 						}));
 	}
 
-	for(i = 0; i < enemies.length; i++){
+	for(var i = 0; i < enemies.length; i++){
 		if(!enemies[i].update()){
 			enemies.splice(i, 1);
 			continue;
@@ -330,7 +335,6 @@ function RenderFrame(){
 window.onload = function(){
 	canvas = document.getElementById("game-canvas");
 	context = canvas.getContext("2d");
-	balls = [], enemies = [];
 
 	var gc = document.getElementById("game-canvas");
 	input = new InputHandler(gc);
