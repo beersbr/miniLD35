@@ -49,12 +49,12 @@ function Ball(args){
 	this.update = function(args){
 		if(args == undefined) args = {};
 
-		this.ay += 0.008;
+		// this.ay += 0.008;
 
 		this.y += this.ay;
 		this.x += this.ax;
 
-		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
+		if(this.y > WINDOW_MAX_HEIGHT) return false;
 		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
 
 		return true;
@@ -98,12 +98,12 @@ function RenderFrame(){
 	var click = input.clicked();
 	if(click != undefined){
 		var width = 0 + click.x;
-		var height = WINDOW_MAX_HEIGHT - click.y;
+		var height = WINDOW_MAX_HEIGHT/2 - click.y;
 		var hypotenuse = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
 		var power = hypotenuse/(WINDOW_MAX_WIDTH/4.5);
 
 		balls.push(new Ball({x: 0,
-							y: WINDOW_MAX_HEIGHT,
+							y: WINDOW_MAX_HEIGHT/2,
 							ax: (width/hypotenuse)*power,
 							ay: -(height/hypotenuse)*power
 						}));
