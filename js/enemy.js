@@ -26,6 +26,11 @@ EnemyConfig.callback = function(obj){
 
 		case "diagnal": 
 			obj.x += obj.ax * 3;
+
+			if(obj.y < 50 || obj.y > (WINDOW_MAX_HEIGHT-50)){
+				obj.ay *= -1;
+			}
+			obj.y += obj.ay * 2;
 			break;
 
 		case "jumper":

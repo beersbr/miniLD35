@@ -18,3 +18,6 @@ function intersection(a, b){
 function random(min, max){
 	return ((Math.random() * (max-min)) + min);
 }
+
+WINDOW_MAX_WIDTH = 800;
+WINDOW_MAX_HEIGHT = 600

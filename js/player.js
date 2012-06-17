@@ -30,7 +30,7 @@ Player.enemy_spawn_rate = 0.05; // 1% to start off
 Player.enemy_spawn_time = 120; // min frame between spawns
 Player.enemy_last_spawn_time = 120;
 
-Player.enemy_item_spawn_chance = 0.05;
+Player.enemy_item_spawn_chance = 0.2;
 
 Player.bullet_properties = {};
 Player.gun_type = "single";

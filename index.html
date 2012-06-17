@@ -196,6 +196,7 @@ function Enemy(args){
 			case "spawner":
 				break;
 			case "diagnal":
+				rc.drawImage(Images.e2, this.x - this.w/2, this.y - this.h/2);
 				break;
 			case "jumper":
 				break;
@@ -232,8 +233,8 @@ function RenderHUD(rc){
 	rc.fillStyle = "rgb(255, 255, 255)";
 	rc.font = "12pt sans-serif";
 	rc.fillText("Health: "+Player.shields, 5, 16);
-	rc.fillText("Accuracy: "+Player.accuracy()+"%", 100, 16);
-	rc.fillText("Bullets: "+(Player.bullet_count_max-balls.length)+"/"+Player.bullet_count_max, 230, 16);
+	// rc.fillText("Accuracy: "+Player.accuracy()+"%", 100, 16);
+	// rc.fillText("Bullets: "+(Player.bullet_count_max-balls.length)+"/"+Player.bullet_count_max, 230, 16);
 	rc.fillText("Score: "+Player.score, 340, 16)
 	rc.restore();
 }
@@ -284,7 +285,8 @@ function RenderFrame(){
 
 			enemies.push(new Enemy({x: WINDOW_MAX_WIDTH,
 								y: ypos,
-								ax: -0.2
+								ax: -0.2,
+								ay: -0.2
 						}));
 
 			Player.enemy_last_spawn_time = 0;
