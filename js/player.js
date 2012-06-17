@@ -4,6 +4,8 @@ Player = {}
 
 // This will have to be somewhat dynamic for the many bullets that the other firing modes provide
 Player.bullet_count_max = 3;
+Player.bullets = 3;
+Player.gun_multiplier = 1;
 Player.bullet_fire_speed = 40;
 Player.bullet_fire_lastshot = 0;
 
@@ -28,6 +30,8 @@ Player.enemy_spawn_rate = 0.05; // 1% to start off
 Player.enemy_spawn_time = 120; // min frame between spawns
 Player.enemy_last_spawn_time = 120;
 
+Player.enemy_item_spawn_chance = 0.05;
+
 Player.bullet_properties = {};
 Player.gun_type = "single";
 
@@ -38,6 +42,9 @@ Player.gun_types = {
 		height = args.h;
 		hypotenuse = args.hyp;
 		power = args.pow;
+
+		Player.gun_multiplier = 1;
+		Player.bullet_count_max = Player.bullets * Player.gun_multiplier;
 
 		balls.push(new Ball({x: 0,
 							y: WINDOW_MAX_HEIGHT/2,
@@ -51,6 +58,9 @@ Player.gun_types = {
 		height = args.h;
 		hypotenuse = args.hyp;
 		power = args.pow;
+
+		Player.gun_multiplier = 2;
+		Player.bullet_count_max = Player.bullets * Player.gun_multiplier;
 
 		balls.push(new Ball({x: 0,
 							y: WINDOW_MAX_HEIGHT/2,
@@ -70,6 +80,9 @@ Player.gun_types = {
 		height = args.h;
 		hypotenuse = args.hyp;
 		power = args.pow;
+
+		Player.gun_multiplier = 3;
+		Player.bullet_count_max = Player.bullets * Player.gun_multiplier;
 
 		balls.push(new Ball({x: 0,
 							y: WINDOW_MAX_HEIGHT/2,
@@ -96,6 +109,9 @@ Player.gun_types = {
 		hypotenuse = args.hyp;
 		power = args.pow;
 
+		Player.gun_multiplier = 2;
+		Player.bullet_count_max = Player.bullets * Player.gun_multiplier;
+
 		balls.push(new Ball({x: 0,
 							y: WINDOW_MAX_HEIGHT/2+10,
 							ax: (width/hypotenuse)*power,
@@ -114,6 +130,9 @@ Player.gun_types = {
 		height = args.h;
 		hypotenuse = args.hyp;
 		power = args.pow;
+
+		Player.gun_multiplier = 4;
+		Player.bullet_count_max = Player.bullets * Player.gun_multiplier;
 
 		balls.push(new Ball({x: 0,
 							y: WINDOW_MAX_HEIGHT/2+30,
@@ -145,6 +164,9 @@ Player.gun_types = {
 		height = args.h;
 		hypotenuse = args.hyp;
 		power = args.pow;
+
+		Player.gun_multiplier = 6;
+		Player.bullet_count_max = Player.bullets * Player.gun_multiplier;
 
 		balls.push(new Ball({x: 0,
 							y: WINDOW_MAX_HEIGHT/2+60,

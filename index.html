@@ -18,6 +18,7 @@ WINDOW_MAX_HEIGHT = 600;
 
 balls = [];
 enemies = [];
+items = [];
 
 Images = {};
 
@@ -27,8 +28,18 @@ Images["bullet"] = new Image();
 Images["bullet"].src = "img/bullet.png";
 Images["e1"] = new Image();
 Images["e1"].src = "img/enemy1.png";
+Images["item_single"] = new Image();
+Images["item_single"].src = "img/item_single.png";
 Images["item_double"] = new Image();
 Images["item_double"].src = "img/item_double.png";
+Images["item_triple"] = new Image();
+Images["item_triple"].src = "img/item_triple.png";
+Images["item_twin_single"] = new Image();
+Images["item_twin_single"].src = "img/item_twin_single.png";
+Images["item_twin_double"] = new Image();
+Images["item_twin_double"].src = "img/item_twin_double.png";
+Images["item_twin_triple"] = new Image();
+Images["item_twin_triple"].src = "img/item_twin_triple.png";
 
 function Ball(args){
 	if(args == undefined) args = {};
@@ -52,9 +63,11 @@ function Ball(args){
 	this.update = function(args){
 		if(args == undefined) args = {};
 
+		var thisbox = {x: this.x, y: this.y, w: this.w, h: this.h};
+
+		// check collision against enemies
 		var en_len = enemies.length;
 		if(en_len > 0){
-			var thisbox = {x: this.x, y: this.y, w: this.w, h: this.h};
 
 			for(var i = 0; i < en_len; i++){
 				var enemy = enemies[i];
@@ -65,6 +78,22 @@ function Ball(args){
 					Player.total_hits += 1;
 					return false;
 				}
+			}
+		}
+
+		// check collision against items
+		var item_len = items.length;
+		if(item_len > 0){
+			for(var i = 0; i < item_len; i++){
+				var item = items[i];
+				var itembox = {x: item.x, y: item.y, w: item.w, h: item.h};
+
+				if(intersection(itembox, thisbox)){
+					item.health -= this.damage;
+					Player.total_hits += 1;
+					return false;
+				}
+
 			}
 		}
 
@@ -90,21 +119,50 @@ function Item(args){
 
 	this.mass = 1.0;
 
-	this.value = value_types[random(0, value_types.length)];
+	this.value = value_types[parseInt(random(0, value_types.length))];
+
 	this.speed = args.speed || 0;
+	this.health = 1.0;
+	this.point_value = args.ptv || 100;
 
 	this.ax = args.ax || 0.0;
 	this.ay = args.ay || 0.0;
 	this.rotation = 0.0;
 
 	this.draw = function(rc){
-		rc.drawImage(Images.item_double, this.x-this.w/2, this.y-this.h/2);
+		switch(this.value){
+			case "single":
+				rc.drawImage(Images.item_single, this.x-this.w/2, this.y-this.h/2);
+				break;
+			case "double":
+				rc.drawImage(Images.item_double, this.x-this.w/2, this.y-this.h/2);
+				break;
+			case "triple":
+				rc.drawImage(Images.item_triple, this.x-this.w/2, this.y-this.h/2);
+				break;
+			case "twin_single":
+				rc.drawImage(Images.item_twin_single, this.x-this.w/2, this.y-this.h/2);
+				break;
+			case "twin_double":
+				rc.drawImage(Images.item_twin_double, this.x-this.w/2, this.y-this.h/2);
+				break;
+			case "twin_triple":
+				rc.drawImage(Images.item_twin_triple, this.x-this.w/2, this.y-this.h/2);
+				break;
+		}
+
 	}
 
 	this.update = function(args){
 
+		if(this.health == 0){
+			Player.score += this.point_value;
+			Player.gun_type = this.value;
+			return false;
+		}
+
 		// Make it move in a random direction
-		if(this.ax == 0){
+		if(this.ax == 0.0){
 			var angle = random(0, 360);
 			var speed = random(3, 6);
 			this.ax = Math.cos(angle * (Math.PI/180));
@@ -113,6 +171,10 @@ function Item(args){
 
 		this.x += this.ax * this.speed;
 		this.y += this.ay * this.speed;
+
+		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
+		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
+		return true;
 	}
 
 }
@@ -135,17 +197,19 @@ function Enemy(args){
 
 	this.draw = function(rc){
 		rc.drawImage(Images.e1, this.x - this.w/2, this.y - this.h/2);
-
-		// rc.save();
-		// rc.fillStyle = "rgb(255, 0, 255)";
-		// rc.fillRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
-		// rc.restore();
+		return true;
 	}
 
 	this.update = function(args){
 
 		if(this.health == 0){
 			Player.score += this.point_value;
+
+			// give it a chance to spawn an item
+			if(Math.random() < Player.enemy_item_spawn_chance){
+				items.push(new Item({x: this.x, y: this.y}));
+			}
+
 			return false;
 		}
 
@@ -166,7 +230,7 @@ function RenderHUD(rc){
 	rc.fillText("Health: "+Player.shields, 5, 16);
 	rc.fillText("Accuracy: "+Player.accuracy()+"%", 100, 16);
 	rc.fillText("Bullets: "+(Player.bullet_count_max-balls.length)+"/"+Player.bullet_count_max, 230, 16);
-	rc.fillText("Score: "+Player.score, 330 , 16)
+	rc.fillText("Score: "+Player.score, 340, 16)
 	rc.restore();
 }
 
@@ -190,7 +254,16 @@ function RenderFrame(){
 		}
 	}
 
-	// draw bullets
+	// draw and update the items
+	for(var i = 0; i < items.length; i++){
+		if(!items[i].update()){
+			items.splice(i, 1);
+			continue;
+		}
+		items[i].draw(context);
+	}
+
+	// draw bullets & update bullets
 	for(var i = 0; i < balls.length; i++){
 		if(!balls[i].update()){
 			balls.splice(i, 1);
@@ -199,7 +272,7 @@ function RenderFrame(){
 		balls[i].draw(context);
 	}
 
-	// update the enemies
+	// spawn
 	if(Math.random() < Player.enemy_spawn_rate){
 
 		if(Player.enemy_last_spawn_time > Player.enemy_spawn_time){
@@ -215,6 +288,7 @@ function RenderFrame(){
 		
 	}
 
+	// Update() the enemies
 	for(var i = 0; i < enemies.length; i++){
 		if(!enemies[i].update()){
 			enemies.splice(i, 1);
