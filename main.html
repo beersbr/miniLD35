@@ -38,6 +38,11 @@ Images["bullet"].src = "img/bullet.png";
 
 Player = {}
 
+Player.bullet_count = 6;
+Player.bullet_count_max = 6;
+Player.bullet_fire_speed = 40;
+Player.bullet_fire_lastshot = 0;
+
 Player.bullet_properties = {};
 Player.gun_type = "single";
 
@@ -290,6 +295,8 @@ function RenderFrame(){
 	//context.clearRect(0, 0, WINDOW_MAX_WIDTH, WINDOW_MAX_HEIGHT);
 	context.drawImage(Images.background, 0, 0);
 
+	Player.bullet_fire_lastshot += 1;
+
 	var click = input.clicked();
 	if(click != undefined){
 		var width = 0 + click.x;
@@ -297,9 +304,13 @@ function RenderFrame(){
 		var hypotenuse = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
 		var power = hypotenuse/(WINDOW_MAX_WIDTH/4.5);
 
-		Player.shoot({w: width, h: height, hyp: hypotenuse, pow: power});
+		if(Player.bullet_fire_lastshot > Player.bullet_fire_speed){
+			Player.shoot({w: width, h: height, hyp: hypotenuse, pow: power});
+			Player.bullet_fire_lastshot = 0;
+		}
 	}
 
+	// draw bullets
 	for(var i = 0; i < balls.length; i++){
 		if(!balls[i].update()){
 			balls.splice(i, 1);
