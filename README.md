@@ -35,10 +35,11 @@ you can change your gun type and power on a wave per wave basis. You get points 
 * Create enemy types
 * Create menu system for starting and stopping games
 * Fix enemy spawn spaces and timings.
-** Fix the time to spawn as a chance every so many frames
+  * Fix the time to spawn as a chance every so many frames
 * Create images for enemies.
 * Create collision animation.
 * Fix the flashing when an enemy is removed.
+* Refactor all the repetative calculations this.w/2 etc etc
 
 #### Done ####
 

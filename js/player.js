@@ -3,7 +3,7 @@ Player = {}
 // Player.bullet_count = 6;
 
 // This will have to be somewhat dynamic for the many bullets that the other firing modes provide
-Player.bullet_count_max = 6;
+Player.bullet_count_max = 3;
 Player.bullet_fire_speed = 40;
 Player.bullet_fire_lastshot = 0;
 

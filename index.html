@@ -27,6 +27,8 @@ Images["bullet"] = new Image();
 Images["bullet"].src = "img/bullet.png";
 Images["e1"] = new Image();
 Images["e1"].src = "img/enemy1.png";
+Images["item_double"] = new Image();
+Images["item_double"].src = "img/item_double.png";
 
 function Ball(args){
 	if(args == undefined) args = {};
@@ -83,16 +85,36 @@ function Item(args){
 
 	this.x = args.x || 0;
 	this.y = args.y || 0;
-	this.w = args.w || 10;
-	this.h = args.h || 10;
+	this.w = args.w || 20;
+	this.h = args.h || 20;
 
 	this.mass = 1.0;
 
 	this.value = value_types[random(0, value_types.length)];
+	this.speed = args.speed || 0;
 
 	this.ax = args.ax || 0.0;
 	this.ay = args.ay || 0.0;
 	this.rotation = 0.0;
+
+	this.draw = function(rc){
+		rc.drawImage(Images.item_double, this.x-this.w/2, this.y-this.h/2);
+	}
+
+	this.update = function(args){
+
+		// Make it move in a random direction
+		if(this.ax == 0){
+			var angle = random(0, 360);
+			var speed = random(3, 6);
+			this.ax = Math.cos(angle * (Math.PI/180));
+			this.ay = Math.sin(angle * (Math.PI/180));
+		}
+
+		this.x += this.ax * this.speed;
+		this.y += this.ay * this.speed;
+	}
+
 }
 
 function Enemy(args){
