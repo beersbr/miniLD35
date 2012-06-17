@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mini LD 35 :: Bounce</title>
+</head>
+
+<link rel="stylesheet" type="text/css" href="css/main.css">
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="js/InputHandler.js"></script>
+
+<script type="text/javascript">
+
+window.requestAnimFrame = (function(callback){
+    return window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function(callback){
+        window.setTimeout(callback, 1000 / 60);
+    };
+})();
+
+WINDOW_MAX_WIDTH = 800;
+WINDOW_MAX_HEIGHT = 600;
+
+function Ball(args){
+	if(args == undefined) args = {};
+
+	this.x = args.x || 0;
+	this.y = args.y || 0;
+	this.w = args.w || 10;
+	this.h = args.h || 10;
+
+	this.mass = 1.0;
+
+	this.ax = args.ax || 0.0;
+	this.ay = args.ay || 0.0;
+	this.rotation = 0.0;
+
+	this.draw = function(rc){
+		rc.save();
+		rc.fillStyle = "rgb(255, 255, 255)";
+		rc.fillRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
+		rc.restore();
+	}
+
+	this.update = function(args){
+		if(args == undefined) args = {};
+
+		this.ay += 0.008;
+
+		this.y += this.ay;
+		this.x += this.ax;
+
+		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
+		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
+
+		return true;
+	}
+}
+
+function Enemy(args){
+	if(args == undefined) args = {};
+
+	this.x = args.x || 0;
+	this.y = args.y || 0;
+	this.w = args.w || 10;
+	this.h = args.h || 10;
+
+	this.mass = 1.0;
+
+	this.ax = args.ax || 0.0;
+	this.ay = args.ay || 0.0;
+	this.rotation = 0.0;
+
+	this.draw = function(rc){
+		rc.save();
+		rc.fillStyle = "rgb(255, 0, 255)";
+		rc.fillRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
+		rc.restore();
+	}
+
+	this.update = function(args){
+		this.x += this.ax;
+
+		if(this.y > WINDOW_MAX_HEIGHT || this.y < 0) return false;
+		if(this.x > WINDOW_MAX_WIDTH || this.x < 0) return false;
+
+		return true;
+	}
+}
+
+function RenderFrame(){
+	context.clearRect(0, 0, WINDOW_MAX_WIDTH, WINDOW_MAX_HEIGHT);
+
+	var click = input.clicked();
+	if(click != undefined){
+		var width = 0 + click.x;
+		var height = WINDOW_MAX_HEIGHT - click.y;
+		var hypotenuse = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+		var power = hypotenuse/(WINDOW_MAX_WIDTH/4.5);
+
+		balls.push(new Ball({x: 0,
+							y: WINDOW_MAX_HEIGHT,
+							ax: (width/hypotenuse)*power,
+							ay: -(height/hypotenuse)*power
+						}));
+	}
+
+	for(i = 0; i < balls.length; i++){
+		if(!balls[i].update()){
+			balls.splice(i, 1);
+			continue;
+		}
+		balls[i].draw(context);
+	}
+
+	// update the enemies
+	if(Math.random() < 0.5/100){
+		var ypos = Math.random()*WINDOW_MAX_HEIGHT;
+
+		enemies.push(new Enemy({x: WINDOW_MAX_WIDTH,
+								y: ypos,
+								ax: -0.2
+						}));
+	}
+
+	for(i = 0; i < enemies.length; i++){
+		if(!enemies[i].update()){
+			enemies.splice(i, 1);
+			continue;
+		}
+		enemies[i].draw(context);
+	}
+
+
+	requestAnimFrame(function(){
+		RenderFrame();
+	});
+}
+
+window.onload = function(){
+	canvas = document.getElementById("game-canvas");
+	context = canvas.getContext("2d");
+	balls = [], enemies = [];
+
+	var gc = document.getElementById("game-canvas");
+	input = new InputHandler(gc);
+
+	RenderFrame();
+}
+
+</script>
+
+<body>
+	<canvas id='game-canvas' width='800px' height='600px'></canvas>
+</body>
+</html>
