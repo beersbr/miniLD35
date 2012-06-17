@@ -1,5 +1,8 @@
 ## Space Shooter Castle Defence ##
 
+This is my Ludum Dare Mini 35 Submission. It is a space shooter defence game. You defend your ship from the enemies. You don't get to move but
+you can change your gun type and power on a wave per wave basis. You get points based on how long you live / your accuracy / your final health per wave etc.
+
 #### Design ####
 
 * Bullets have gravity towards the bottom half of the screen... for some reason.
@@ -21,15 +24,19 @@
 #### Enemy Type Ideas ####
 
 * Spinning enemies
+* Double and triple enemy groups
+* Change speed of he enemies.
+* Enemy size changes based on the amount of health it has.
 * Show enemy health above enemy
 
 #### TODO ####
 
 * Create Items for player to upgrade the way the bullets come from the gun and the type of bullets.
 * Create enemy types
-* Create a GUI for showing game stats
 * Create menu system for starting and stopping games
+* Fix enemy spawn spaces and timings.
 
 #### Done ####
 
 * Create collision between bullets and enemies
+* Create a GUI for showing game stats

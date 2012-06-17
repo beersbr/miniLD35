@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Mini LD 35 :: Bounce</title>
+	<title>Mini LD 35 :: Ship Defence</title>
 </head>
 
 <link rel="stylesheet" type="text/css" href="css/main.css">
@@ -38,10 +38,31 @@ Images["bullet"].src = "img/bullet.png";
 
 Player = {}
 
-Player.bullet_count = 6;
+// Player.bullet_count = 6;
+
+// This will have to be somewhat dynamic for the many bullets that the other firing modes provide
 Player.bullet_count_max = 6;
 Player.bullet_fire_speed = 40;
 Player.bullet_fire_lastshot = 0;
+
+Player.score = 0.0;
+Player.time_played = 0.0;
+Player.shields = 100.0;
+Player.wave = 1;
+Player.enemies_left = 0;
+
+Player.total_shots = 0;
+Player.total_hits = 0;
+
+Player.accuracy = function(){
+
+	var ac = (Player.total_hits/Player.total_shots).toFixed(2);
+	if(isNaN(ac)) return "0";
+	return ac*100;
+}
+
+Player.max_wave_enemies = 10;
+Player.enemy_spawn_rate = 0.01; // 1% to start off
 
 Player.bullet_properties = {};
 Player.gun_type = "single";
@@ -200,6 +221,7 @@ Player.gun_types = {
 };
 
 Player.shoot = function(args){
+	Player.total_shots += 1;
 	this.gun_types[this.gun_type](args);
 }
 
@@ -241,6 +263,7 @@ function Ball(args){
 
 				if(intersection(enbox, thisbox)){
 					enemy.health -= this.damage;
+					Player.total_hits += 1;
 					return false;
 				}
 			}
@@ -254,6 +277,10 @@ function Ball(args){
 
 		return true;
 	}
+}
+
+function Item(args){
+	if(args == undefined) args = {};
 }
 
 function Enemy(args){
@@ -291,6 +318,17 @@ function Enemy(args){
 	}
 }
 
+function RenderHUD(rc){
+
+	rc.save();
+	rc.fillStyle = "rgb(255, 255, 255)";
+	rc.font = "12pt sans-serif";
+	rc.fillText("Health: "+Player.shields, 5, 16);
+	rc.fillText("Accuracy: "+Player.accuracy()+"%", 100, 16);
+	rc.fillText("Bullets: "+(Player.bullet_count_max-balls.length)+"/"+Player.bullet_count_max, 230, 16);
+	rc.restore();
+}
+
 function RenderFrame(){
 	//context.clearRect(0, 0, WINDOW_MAX_WIDTH, WINDOW_MAX_HEIGHT);
 	context.drawImage(Images.background, 0, 0);
@@ -304,7 +342,7 @@ function RenderFrame(){
 		var hypotenuse = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
 		var power = hypotenuse/(WINDOW_MAX_WIDTH/4.5);
 
-		if(Player.bullet_fire_lastshot > Player.bullet_fire_speed){
+		if(Player.bullet_fire_lastshot > Player.bullet_fire_speed && balls.length < Player.bullet_count_max){
 			Player.shoot({w: width, h: height, hyp: hypotenuse, pow: power});
 			Player.bullet_fire_lastshot = 0;
 		}
@@ -337,6 +375,7 @@ function RenderFrame(){
 		enemies[i].draw(context);
 	}
 
+	RenderHUD(context);
 
 	requestAnimFrame(function(){
 		RenderFrame();
